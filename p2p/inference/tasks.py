@@ -41,25 +41,31 @@ def run_inference(job_id):
     model_files = [os.path.join(base,chembl_version,path, f) for f in os.listdir(os.path.join(base, chembl_version,path)) if f.endswith('.jar')]
     results = []
     print("Running inference...", flush=True)
+    max_models = 3
     try:
-        for model in model_files:
+        for model in model_files[:max_models]:
             print("Running inference for model:", model, flush=True)
             output_file = os.path.join(output_dir, f"{job_id}-{os.path.basename(model)}_result.csv")
             logfile = os.path.join(output_dir, f"{job_id}-{os.path.basename(model)}_log.txt")
 
+            cpsign = '/app/inference/cpsign/cpsign-2.0.0-fatjar.jar'
             # Command to run inference with CPSign
-            #cmd = f"java -jar cpsign.jar predict --model {model} --predict-file csv delim=, {smiles_file_path} --output-format csv --output {output_file} --logfile {logfile}"
+            cmd = f"java -jar {cpsign} predict --model {model} --predict-file csv delim=, {smiles_file_path} --output-format csv --output {output_file} --logfile {logfile}"
 
             # Run the subprocess
-            #subprocess.run(cmd, shell=True)
+            print("Running command:", cmd, flush=True)
+            subprocess.run(cmd, shell=True)
+            print("Finished running command", flush=True)
 
             # Read the result file
-            #df = pd.read_csv(output_file)
+            print("Reading result file...", flush=True)
+            df = pd.read_csv(output_file)
+            print("Finished reading result file", flush=True)
             import time
-            print("Sleeping for 5 seconds...", flush=True)
-            time.sleep(0.5)
-            d = {'col1': [1, 2], 'col2': [3, 4]}
-            df = pd.DataFrame(data=d)
+            print("Sleeping for 0.1 seconds...", flush=True)
+            time.sleep(0.1)
+            #d = {'col1': [1, 2], 'col2': [3, 4]}
+            #df = pd.DataFrame(data=d)
             results.append(df)
 
     except Exception as e:
@@ -68,6 +74,7 @@ def run_inference(job_id):
         cleanup_output_files(output_dir)
         print("Inference failed:", e, flush=True)
 
+    result_file_path = None
     try:
         # Concatenate and transpose results
         print("Concatenating results...", flush=True)
@@ -89,9 +96,10 @@ def run_inference(job_id):
     #job.result_file.name = f"results/{job_id}_final_result.csv"
     import uuid
     identifier = str(uuid.uuid4())
-    with open(result_file_path, 'rb') as f:
-        result = Result.objects.create(job=job)
-        result.result_file.save(f"{job_id}_{identifier}_result.csv", f)
+    if result_file_path:
+        with open(result_file_path, 'rb') as f:
+            result = Result.objects.create(job=job)
+            result.result_file.save(f"{job_id}_{identifier}_result.csv", f)
 
     #job.result_file.name = f"results/{job_id}_final_result.csv"
 
