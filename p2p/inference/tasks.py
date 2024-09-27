@@ -1,7 +1,5 @@
 import os
 import subprocess
-from unittest.mock import patch
-
 from celery import shared_task
 from .models import InferenceJob, Result
 from django.core.mail import send_mail
@@ -41,9 +39,14 @@ def run_inference(job_id):
     model_files = [os.path.join(base,chembl_version,path, f) for f in os.listdir(os.path.join(base, chembl_version,path)) if f.endswith('.jar')]
     results = []
     print("Running inference...", flush=True)
-    max_models = 3
+    DEBUG=True
+
+    if DEBUG:
+        print("RUNNING IN DEBUG MODE OINLY CALCULATING 3 MODELS", flush=True)
+        model_files = model_files[:3]
+
     try:
-        for model in model_files[:max_models]:
+        for model in model_files:
             print("Running inference for model:", model, flush=True)
             output_file = os.path.join(output_dir, f"{job_id}-{os.path.basename(model)}_result.csv")
             logfile = os.path.join(output_dir, f"{job_id}-{os.path.basename(model)}_log.txt")
