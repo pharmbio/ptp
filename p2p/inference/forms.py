@@ -2,6 +2,8 @@ from django import forms
 from .models import InferenceJob
 
 CHEMBL_CHOICES = [
+    ('31', 'ChEMBL 31'),
+    ('32', 'ChEMBL 32'),
     ('33', 'ChEMBL 33'),
     ('34', 'ChEMBL 34'),
     # Add more versions as needed

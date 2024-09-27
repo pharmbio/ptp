@@ -10,7 +10,7 @@ SECRET_KEY = 'p2p_for_president_CC44aAFG'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['yourdomain.com', 'localhost']
+ALLOWED_HOSTS = ['*', 'localhost']
 
 # Application definition
 INSTALLED_APPS = [

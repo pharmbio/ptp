@@ -9,8 +9,10 @@ def submit_job(request):
         form = InferenceJobForm(request.POST, request.FILES)
         if form.is_valid():
             job = form.save()
+            print("form is valid! continue!",flush=True)
             run_inference.delay(job.id)
-            return redirect('job_status', job_id=job.id)
+            print("form is valid! continue 2!", flush=True)
+            return redirect('inference:job_status', job_id=job.id)
     else:
         form = InferenceJobForm()
     return render(request, 'inference/submit.html', {'form': form})

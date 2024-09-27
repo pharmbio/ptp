@@ -25,10 +25,11 @@ services:
     build:
       context: ./p2p/
       dockerfile: Dockerfile
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py collectstatic --noinput &&
-             python manage.py runserver 0.0.0.0:8000"
+    command: sh -c /app/run.sh
+    #command: >
+    #  sh -c "python manage.py migrate &&
+    #         python manage.py collectstatic --noinput &&
+    #         python manage.py runserver 0.0.0.0:8000"
 
     #gunicorn p2p.wsgi:application --bind 0.0.0.0:8000"
     volumes:
@@ -41,6 +42,7 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
       - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
       - DEBUG="True"
       - EMAIL_HOST=smtp.your-email-provider.com
       - EMAIL_PORT="587"
@@ -50,6 +52,7 @@ services:
       - SITE_URL=http://localhost:8000
 
   p2p-worker:
+    container_name: worker
     build:
       context: ./p2p/
     command: celery -A p2p.celery worker --loglevel=info  --concurrency=8
@@ -65,6 +68,7 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
 
   p2p-beat:
+    container_name: beat
     build:
       context: ./p2p/
     command: celery -A p2p.celery beat --loglevel=info

@@ -17,50 +17,83 @@ def run_inference(job_id):
     output_dir = f"/tmp/inference_{job_id}/"
     os.makedirs(output_dir, exist_ok=True)
 
+    print("selected ChEMBL version:", job.chembl_version, flush=True)
     # Select models based on the ChEMBL version
-    if job.chembl_version == '33':
+    if str(job.chembl_version) == '31':
+        model_files = ['model_chembl31_1.zip', 'model_chembl31_2.zip']
+    if str(job.chembl_version) == '32':
+        model_files = ['model_chembl32_1.zip', 'model_chembl32_2.zip']
+    if str(job.chembl_version) == '33':
         model_files = ['model_chembl33_1.zip', 'model_chembl33_2.zip']
-    elif job.chembl_version == '34':
+    elif str(job.chembl_version) == '34':
         model_files = ['model_chembl34_1.zip', 'model_chembl34_2.zip']
     else:
-        raise ValueError(f"Unsupported ChEMBL version: {job.chembl_version}")
+        model_files = ['model_chembl34_1.zip', 'model_chembl34_2.zip']
 
     results = []
-    for model in model_files:
-        output_file = os.path.join(output_dir, f"{os.path.basename(model)}_result.csv")
-        logfile = os.path.join(output_dir, f"{os.path.basename(model)}_log.txt")
+    print("Running inference...", flush=True)
+    try:
+        for model in model_files:
+            print("Running inference for model:", model, flush=True)
+            output_file = os.path.join(output_dir, f"{os.path.basename(model)}_result.csv")
+            logfile = os.path.join(output_dir, f"{os.path.basename(model)}_log.txt")
 
-        # Command to run inference with CPSign
-        cmd = f"java -jar cpsign.jar predict --model {model} --predict-file csv delim=, {smiles_file_path} --output-format csv --output {output_file} --logfile {logfile}"
+            # Command to run inference with CPSign
+            #cmd = f"java -jar cpsign.jar predict --model {model} --predict-file csv delim=, {smiles_file_path} --output-format csv --output {output_file} --logfile {logfile}"
 
-        # Run the subprocess
-        subprocess.run(cmd, shell=True)
+            # Run the subprocess
+            #subprocess.run(cmd, shell=True)
 
-        # Read the result file
-        df = pd.read_csv(output_file)
-        results.append(df)
+            # Read the result file
+            #df = pd.read_csv(output_file)
+            import time
+            print("Sleeping for 5 seconds...", flush=True)
+            time.sleep(5)
+            d = {'col1': [1, 2], 'col2': [3, 4]}
+            df = pd.DataFrame(data=d)
+            results.append(df)
 
-    # Concatenate and transpose results
-    final_result = pd.concat(results, axis=1)
-    transposed_result = final_result.transpose()
+    except Exception as e:
+        job.status = 'failed'
+        job.save()
+        cleanup_output_files(output_dir)
+        print("Inference failed:", e, flush=True)
 
-    # Save the final result to a CSV
-    result_file_path = os.path.join(output_dir, 'final_result.csv')
-    transposed_result.to_csv(result_file_path, index=False)
+    try:
+        # Concatenate and transpose results
+        print("Concatenating results...", flush=True)
+        final_result = pd.concat(results, axis=1)
+        transposed_result = final_result.transpose()
 
+        # Save the final result to a CSV
+        result_file_path = os.path.join(output_dir, 'final_result.csv')
+        transposed_result.to_csv(result_file_path, index=False)
+
+    except Exception as e:
+        job.status = 'failed'
+        job.save()
+        cleanup_output_files(output_dir)
+        print("Result processing failed to concatenate results:", e, flush=True)
+
+    from .models import Result
     # Save result in Django model
-    job.result_file.name = f"results/{job_id}_final_result.csv"
-
+    #job.result_file.name = f"results/{job_id}_final_result.csv"
+    import uuid
+    identifier = str(uuid.uuid4())
     with open(result_file_path, 'rb') as f:
         result = Result.objects.create(job=job)
-        result.result_file.save(f"{job_id}_final_result.csv", f)
+        result.result_file.save(f"{job_id}_{identifier}_result.csv", f)
 
-    job.result_file.name = f"results/{job_id}_final_result.csv"
+    #job.result_file.name = f"results/{job_id}_final_result.csv"
+
+    #from .models import Result
+    #res = Result.objects.create(job=job, result_file=f"results/{job_id}_final_result.csv")
+    #res.save()
+
     job.status = 'completed'
     job.save()
 
-    job.status = 'completed'
-    job.save()
+
 
     # Send email if provided
     if job.email:
