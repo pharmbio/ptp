@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:6.2
+    restart: always
+    ports:
+      - "6379:6379"
+
+  p2p:
+    container_name: p2p
+    image: ghcr.io/pharmbio/p2p:latest
+    build:
+      context: ./p2p/
+      dockerfile: Dockerfile
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+
+    #gunicorn p2p.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - ./p2p/:/app  # Mount the current directory to the container for live development
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG="True"
+      - EMAIL_HOST=smtp.your-email-provider.com
+      - EMAIL_PORT="587"
+      - EMAIL_USE_TLS="True"
+      - EMAIL_HOST_USER=your-email@example.com
+      - EMAIL_HOST_PASSWORD=your-email-password
+      - SITE_URL=http://localhost:8000
+
+  p2p-worker:
+    build:
+      context: ./p2p/
+    command: celery -A p2p.celery worker --loglevel=info  --concurrency=8
+    volumes:
+      - ./p2p/:/app
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      - GET_HOSTS_FROM=dns
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+
+  p2p-beat:
+    build:
+      context: ./p2p/
+    command: celery -A p2p.celery beat --loglevel=info
+    volumes:
+      - ./p2p/:/app
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      - GET_HOSTS_FROM=dns
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+
+volumes:
+  postgres_data:
