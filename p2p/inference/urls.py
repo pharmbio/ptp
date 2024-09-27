@@ -7,4 +7,5 @@ app_name = 'inference'
 urlpatterns = [
     path('', views.submit_job, name='submit_job'),
     path('status/<int:job_id>/', views.job_status, name='job_status'),
+    path('stat/<int:job_id>/', views.job_status_json, name='job_status_json'),
 ]

@@ -75,6 +75,7 @@ def run_inference(job_id):
         print("Inference failed:", e, flush=True)
 
     result_file_path = None
+    """
     try:
         # Concatenate and transpose results
         print("Concatenating results...", flush=True)
@@ -84,6 +85,52 @@ def run_inference(job_id):
         # Save the final result to a CSV
         result_file_path = os.path.join(output_dir, 'final_result.csv')
         transposed_result.to_csv(result_file_path, index=False)
+
+    except Exception as e:
+        job.status = 'failed'
+        job.save()
+        cleanup_output_files(output_dir)
+        print("Result processing failed to concatenate results:", e, flush=True)
+    """
+    result_file_path = None
+    try:
+        # Paths for input and output
+        original = job.smiles_file.path
+        from pathlib import Path
+        predictions_path = Path(output_dir)
+
+        original_columns = pd.read_csv(original, nrows=0).columns
+
+        dfs = []
+
+        a = 0
+        for p in predictions_path.glob('*.csv'):
+            if 'abers' in job.type.lower():
+                df_pred = pd.read_csv(p, names=[*original_columns, 'pa', 'pi', 'foo', 'bar'], header=None)
+                df_pred = df_pred.drop(columns=['foo', 'bar'])
+            else:
+                df_pred = pd.read_csv(p, names=[*original_columns, 'pa', 'pi'], header=None)
+
+            df_pred.rename(columns={df_pred.columns[0]: 'SMILES'}, inplace=True)
+            df_pred.drop_duplicates(subset="SMILES", inplace=True)
+            df_pred['stem'] = p.stem
+            dfs.append(df_pred)
+            original_columns.values[0] = "SMILES"
+            oldCols = df_pred[original_columns]
+
+            a += 1
+
+        df = pd.concat(dfs)
+
+        df = df.pivot(index='SMILES', columns='stem', values=['pa', 'pi'])
+        df.columns = [stem + '_' + papi for (papi, stem) in df.columns.to_flat_index()]
+
+        toAdd = oldCols
+        toAdd.set_index("SMILES", inplace=True)
+
+        df = pd.concat((df, toAdd), axis=1)
+        result_file_path = os.path.join(output_dir, 'final_result.csv')
+        df.to_csv(result_file_path, index=False)
 
     except Exception as e:
         job.status = 'failed'
@@ -122,7 +169,7 @@ def run_inference(job_id):
         )
 
     # Optionally clean up temp files
-    cleanup_output_files(output_dir)
+    #cleanup_output_files(output_dir)
 
 
 def cleanup_output_files(output_dir):

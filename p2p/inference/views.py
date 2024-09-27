@@ -30,6 +30,17 @@ def job_status(request, job_id):
     except Result.DoesNotExist:
         result_url = None
 
+    return render(request, 'inference/status.html', locals())
+
+
+def job_status_json(request, job_id):
+    job = InferenceJob.objects.get(id=job_id)
+    try:
+        result = Result.objects.get(job=job)
+        result_url = result.result_file.url if result.result_file else None
+    except Result.DoesNotExist:
+        result_url = None
+
     return JsonResponse({
         'status': job.status,
         'result_file': result_url
