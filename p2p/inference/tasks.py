@@ -1,5 +1,7 @@
 import os
 import subprocess
+from unittest.mock import patch
+
 from celery import shared_task
 from .models import InferenceJob, Result
 from django.core.mail import send_mail
@@ -19,24 +21,31 @@ def run_inference(job_id):
 
     print("selected ChEMBL version:", job.chembl_version, flush=True)
     # Select models based on the ChEMBL version
-    if str(job.chembl_version) == '31':
-        model_files = ['model_chembl31_1.zip', 'model_chembl31_2.zip']
-    if str(job.chembl_version) == '32':
-        model_files = ['model_chembl32_1.zip', 'model_chembl32_2.zip']
-    if str(job.chembl_version) == '33':
-        model_files = ['model_chembl33_1.zip', 'model_chembl33_2.zip']
-    elif str(job.chembl_version) == '34':
-        model_files = ['model_chembl34_1.zip', 'model_chembl34_2.zip']
-    else:
-        model_files = ['model_chembl34_1.zip', 'model_chembl34_2.zip']
 
+    if str(job.type == 'vennABERS'):
+        path = 'vennabers_models'
+    else:
+        path = 'conformal_models'
+
+    if str(job.chembl_version) == '31':
+        chembl_version = 'chembl_31'
+    if str(job.chembl_version) == '32':
+        chembl_version = 'chembl_32'
+    if str(job.chembl_version) == '33':
+        chembl_version = 'chembl_33'
+    elif str(job.chembl_version) == '34':
+        chembl_version = 'chembl_34'
+    else:
+        chembl_version = 'chembl_34'
+    base = '/app/inference/models/'
+    model_files = [os.path.join(base,chembl_version,path, f) for f in os.listdir(os.path.join(base, chembl_version,path)) if f.endswith('.jar')]
     results = []
     print("Running inference...", flush=True)
     try:
         for model in model_files:
             print("Running inference for model:", model, flush=True)
-            output_file = os.path.join(output_dir, f"{os.path.basename(model)}_result.csv")
-            logfile = os.path.join(output_dir, f"{os.path.basename(model)}_log.txt")
+            output_file = os.path.join(output_dir, f"{job_id}-{os.path.basename(model)}_result.csv")
+            logfile = os.path.join(output_dir, f"{job_id}-{os.path.basename(model)}_log.txt")
 
             # Command to run inference with CPSign
             #cmd = f"java -jar cpsign.jar predict --model {model} --predict-file csv delim=, {smiles_file_path} --output-format csv --output {output_file} --logfile {logfile}"
@@ -48,7 +57,7 @@ def run_inference(job_id):
             #df = pd.read_csv(output_file)
             import time
             print("Sleeping for 5 seconds...", flush=True)
-            time.sleep(5)
+            time.sleep(0.5)
             d = {'col1': [1, 2], 'col2': [3, 4]}
             df = pd.DataFrame(data=d)
             results.append(df)

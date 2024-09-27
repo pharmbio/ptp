@@ -6,6 +6,7 @@ class InferenceJob(models.Model):
     email = models.EmailField(null=True, blank=True)
     smiles_file = models.FileField(upload_to='uploads/')
     chembl_version = models.CharField(max_length=10)
+    type = models.CharField(max_length=10)
     status = models.CharField(max_length=50, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
 

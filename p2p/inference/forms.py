@@ -14,6 +14,8 @@ class InferenceJobForm(forms.ModelForm):
     email = forms.EmailField(required=False, help_text="Optional: Get notified when the job is complete.")
     chembl_version = forms.ChoiceField(choices=CHEMBL_CHOICES, required=True, label="ChEMBL Version")
 
+    type = forms.ChoiceField(choices=[('conformal', 'Conformal'), ('vennABERS', 'VennABERS')], required=True, label="Type")
+
     class Meta:
         model = InferenceJob
         fields = ['smiles_file', 'email', 'chembl_version']
