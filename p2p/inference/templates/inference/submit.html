@@ -1,12 +1,6 @@
 
 {% load static %}
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit Job</button>
-</form>
-
 
 
 <!doctype html>
@@ -177,12 +171,13 @@
 <div class="container">
   <main>
     <div class="py-5 text-center">
-      <img class="d-block mx-auto mb-4" src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">
-      <h2>Checkout form</h2>
-      <p class="lead">Below is an example form built entirely with Bootstrap’s form controls. Each required form group has a validation state that can be triggered by attempting to submit the form without completing it.</p>
+      <img class="d-block mx-auto mb-4" src="{% static 'dist/img/pharmbio-logo-new.png' %}" alt="" width="300">
+      <h2>P2P Inference Service</h2>
+      <p class="lead">Explaination goes here.</p>
     </div>
 
     <div class="row g-5">
+      {% if False %}
       <div class="col-md-5 col-lg-4 order-md-last">
         <h4 class="d-flex justify-content-between align-items-center mb-3">
           <span class="text-primary">Your cart</span>
@@ -230,8 +225,17 @@
           </div>
         </form>
       </div>
-      <div class="col-md-7 col-lg-8">
-        <h4 class="mb-3">Billing address</h4>
+{% endif %}
+
+      <div class="col-md-12 col-lg-8">
+        <h4 class="mb-3">Inference Request Details</h4>
+        <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit Job</button>
+</form>
+
+    {% if False %}
         <form class="needs-validation" novalidate>
           <div class="row g-3">
             <div class="col-sm-6">
@@ -383,12 +387,15 @@
 
           <button class="w-100 btn btn-primary btn-lg" type="submit">Continue to checkout</button>
         </form>
+
+            {% endif %}
       </div>
     </div>
+
   </main>
 
   <footer class="my-5 pt-5 text-body-secondary text-center text-small">
-    <p class="mb-1">&copy; 2017–2024 Company Name</p>
+    <p class="mb-1">&copy; 2017–2024 Pharmb.io</p>
     <ul class="list-inline">
       <li class="list-inline-item"><a href="#">Privacy</a></li>
       <li class="list-inline-item"><a href="#">Terms</a></li>
