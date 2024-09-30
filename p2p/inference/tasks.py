@@ -5,6 +5,7 @@ from .models import InferenceJob, Result
 from django.core.mail import send_mail
 from django.conf import settings
 import pandas as pd
+from datetime import timezone
 
 @shared_task
 def run_inference(job_id):
