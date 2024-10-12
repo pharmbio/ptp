@@ -39,17 +39,18 @@ def run_inference(job_id):
     base = '/app/inference/models/'
     model_files = [os.path.join(base,chembl_version,path, f) for f in os.listdir(os.path.join(base, chembl_version,path)) if f.endswith('.jar')]
     results = []
+    result_filenames = []
     print("Running inference...", flush=True)
     DEBUG=True
 
     if DEBUG:
         print("RUNNING IN DEBUG MODE OINLY CALCULATING 3 MODELS", flush=True)
-        model_files = model_files[:3]
+        model_files = model_files#[:5]
 
     try:
         for model in model_files:
             print("Running inference for model:", model, flush=True)
-            output_file = os.path.join(output_dir, f"{job_id}-{os.path.basename(model)}_result.csv")
+            output_file = os.path.join(output_dir, f"{os.path.basename(model)}_result.csv")
             logfile = os.path.join(output_dir, f"{job_id}-{os.path.basename(model)}_log.txt")
 
             cpsign = '/app/inference/cpsign/cpsign-2.0.0-fatjar.jar'
@@ -70,6 +71,7 @@ def run_inference(job_id):
             time.sleep(0.1)
             #d = {'col1': [1, 2], 'col2': [3, 4]}
             #df = pd.DataFrame(data=d)
+            result_filenames.append(output_file)
             results.append(df)
 
     except Exception as e:
@@ -96,7 +98,10 @@ def run_inference(job_id):
         cleanup_output_files(output_dir)
         print("Result processing failed to concatenate results:", e, flush=True)
     """
-    result_file_path = None
+
+    print("Concatenating results...", flush=True)
+    result_file_path = f"resultfilepath-{job_id}.csv"
+
     try:
         # Paths for input and output
         original = job.smiles_file.path
@@ -105,36 +110,53 @@ def run_inference(job_id):
 
         original_columns = pd.read_csv(original, nrows=0).columns
 
-        dfs = []
+        p_i_dictionaries = []
+        p_a_dictionaries = []
+        targets = []
 
-        a = 0
-        for p in predictions_path.glob('*.csv'):
-            if 'abers' in job.type.lower():
-                df_pred = pd.read_csv(p, names=[*original_columns, 'pa', 'pi', 'foo', 'bar'], header=None)
-                df_pred = df_pred.drop(columns=['foo', 'bar'])
-            else:
-                df_pred = pd.read_csv(p, names=[*original_columns, 'pa', 'pi'], header=None)
+        i = 0
+        original_file = pd.read_csv(original)
 
-            df_pred.rename(columns={df_pred.columns[0]: 'SMILES'}, inplace=True)
-            df_pred.drop_duplicates(subset="SMILES", inplace=True)
-            df_pred['stem'] = p.stem
-            dfs.append(df_pred)
-            original_columns.values[0] = "SMILES"
-            oldCols = df_pred[original_columns]
+        for p in results: #predictions_path.glob('*.csv'):
+            print("Processing file:", p, flush=True)
 
-            a += 1
+            df = p #d.read_csv(p)
 
-        df = pd.concat(dfs)
+            # Create dictionaries for each row
+            p_i_dict = {row[0]: row[-2] for _, row in df.iterrows()}
+            p_a_dict = {row[0]: row[-1] for _, row in df.iterrows()}
 
-        df = df.pivot(index='SMILES', columns='stem', values=['pa', 'pi'])
-        df.columns = [stem + '_' + papi for (papi, stem) in df.columns.to_flat_index()]
+            p_i_dictionaries.append(p_i_dict)
+            p_a_dictionaries.append(p_a_dict)
+            targets.append(result_filenames[i].split('/')[-1].split('_')[0])
+            i += 1
 
-        toAdd = oldCols
-        toAdd.set_index("SMILES", inplace=True)
+        df_result = pd.DataFrame()
+        df_result['SMILES'] = original_file['SMILES']
 
-        df = pd.concat((df, toAdd), axis=1)
-        result_file_path = os.path.join(output_dir, 'final_result.csv')
-        df.to_csv(result_file_path, index=False)
+
+
+        for target, p_i, p_a in zip(targets, p_i_dictionaries, p_a_dictionaries):
+            print("joining for target:", target, flush=True)
+            df_result[target + '_p_i'] = df_result['SMILES'].map(p_i)
+            df_result[target + '_p_a'] = df_result['SMILES'].map(p_a)
+
+        df_result.drop(axis='index', labels=0, inplace=True)
+        #print("Finished processing file:", p, flush=True)
+        df_result.to_csv(result_file_path, index=False)
+        #print("saving to resultfile path", flush=True)
+
+        #df = pd.concat(dfs)
+
+        #df = df.pivot(index='SMILES', columns='stem', values=['pa', 'pi'])
+        #df.columns = [stem + '_' + papi for (papi, stem) in df.columns.to_flat_index()]
+
+        #toAdd = oldCols
+        #toAdd.set_index("SMILES", inplace=True)
+
+        #df = pd.concat((df, toAdd), axis=1)
+        #result_file_path = os.path.join(output_dir, 'final_result.csv')
+        #df.to_csv(result_file_path, index=False)
 
     except Exception as e:
         job.status = 'failed'
@@ -184,7 +206,9 @@ def cleanup_output_files(output_dir):
 @shared_task
 def cleanup_old_jobs():
     """Scheduled task to clean up result files older than 30 days."""
-    old_jobs = InferenceJob.objects.filter(created_at__lt=timezone.now() - timedelta(days=30))
+    from datetime import timedelta, datetime
+
+    old_jobs = InferenceJob.objects.filter(created_at__lt=datetime.now() - timedelta(days=30))
     for job in old_jobs:
         if job.result_file:
             job.result_file.delete()
