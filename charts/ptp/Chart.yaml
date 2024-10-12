@@ -1,0 +1,5 @@
+apiVersion: v2
+name: ptp
+description: A Helm chart for deploying the Pharb.io PTP service
+version: 0.1.0
+appVersion: "3.0.0"

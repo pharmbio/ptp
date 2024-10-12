@@ -1,0 +1,60 @@
+{{- $ingress := .Values.ingress | default dict -}}
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+#apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "360s"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "360s"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "360s"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/client-body-buffer-size: 100m
+
+  {{- with .Values.ingress.annotations }}
+     {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{ if $ingress.className }}
+    {{ if eq $ingress.className "nginx"}}
+    #kubernetes.io/ingress.class: nginx
+    {{ end }}
+  {{ end }}
+  labels:
+    io.kompose.service: {{ .Release.Name }}-ingress
+spec:
+  {{ if $ingress.className }}
+  ingressClassName: {{ $ingress.className }}
+  {{ else }}
+  ingressClassName: nginx
+  {{ end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+  {{- range .Values.ingress.tls }}
+    - hosts:
+      {{- range .hosts }}
+        - console.{{ .  }}
+      {{- end }}
+      secretName: {{ .secretName }}-tls
+    {{- end }}
+  {{- end }}
+  rules:
+  {{- range .Values.ingress.hosts }}
+    - host: {{ .host }}
+      http:
+        paths:
+        - path: /
+          backend:
+            # v1beta1 compatible service convention
+            #serviceName: ingress
+            #servicePort: 8080
+            service:
+              name: ptp-{{ $.Release.Name}}
+              port:
+                number: 8000
+          pathType: Prefix
+
+  {{- end }}
+{{- end }}
+
+

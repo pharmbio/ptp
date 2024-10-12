@@ -1,0 +1,32 @@
+
+access_key: AA
+secret_key: BB
+
+
+debug: true
+ptp:
+  replicaCount: 1
+
+  image:
+    repository: ghcr.io/pharmbio/ptp
+    tag: develop
+    pullPolicy: Always
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+  hosts:
+    - host: ptp.pharmb.io
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+persistence:
+  enabled: true
+  existingClaim: "ptp-models"
+  secretName: "ptp-models-secret"
+#  accessMode: ReadWriteMany
+#  size: 1Gi
+#  storageClass: ""
