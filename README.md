@@ -26,12 +26,15 @@ To use this project, follow these steps:
     ```sh
     helm install --upgrade charts/ptp --values values.yaml
     ```
+> Note: The deployment will create a Job to fetch all depdendency models before starting services. This may take some time since there are 10Gb+ downloadables.
+> This is only needed on load (new version) or reload of model library.
 
 ### Docker Deployment
 1. **Build and run the Docker containers**:
     ```sh
     docker-compose up --build
     ```
+
 
 ## References
 Model repository on Hugging Face: [pharmbio/ptp](https://huggingface.co/pharmbio/ptp)
