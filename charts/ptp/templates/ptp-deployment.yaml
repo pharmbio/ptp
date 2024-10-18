@@ -22,6 +22,11 @@ spec:
         io.kompose.service: ptp-{{ .Release.Name }}
     spec:
       initContainers:
+        {{- if .Values.ptp.downloadModels }}
+        - name: wait-for-init-job
+          image: bitnami/kubectl:latest
+          command: [ 'sh', '-c', 'until [ "$(kubectl get jobs ptp-download-models -o jsonpath="{.status.succeeded}")" = "1" ]; do echo waiting for job to complete; sleep 2; done' ]
+        {{- end }}
         {{- if not .Values.postgres }}
         - name: wait-for-db
           #image: postgres
@@ -54,6 +59,9 @@ spec:
             - containerPort: 8000
               protocol: TCP
           volumeMounts:
+            - mountPath: /app/inference/models/
+              subPath: models/
+              name: ptp-worker-claim0
             - name: settings-volume
               mountPath: /app/ptp/settings.py
               subPath: settings.py
@@ -61,6 +69,9 @@ spec:
         - name: regcred
       restartPolicy: Always
       volumes:
+        - name: ptp-worker-claim0
+          persistentVolumeClaim:
+            claimName: ptp-worker-claim0
         - name: settings-volume
           configMap:
             name: settings-config-{{ .Release.Name }}
