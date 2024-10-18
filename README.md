@@ -7,9 +7,9 @@
 <img width="867" alt="Screenshot 2024-10-18 at 14 56 57" src="https://github.com/user-attachments/assets/a7518347-6969-445b-8cec-78824c536373">
 
 ## Running the project
-Navigate to the specified serving url.
-Upload a csv smiles file.
-Se the example in test/smiles_example.csv for valid input file format.
+1. Navigate to the specified serving url.
+2. Upload a csv smiles file.
+> Se the example in test/smiles_example.csv for valid input file format.
 
 ## Local Installation
 There are two options. Docker-compose is fast to get started. The alternative and production-like alternative is skaffold. See skaffold.dev for more information on how to run.
