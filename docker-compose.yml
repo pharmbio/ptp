@@ -20,10 +20,10 @@ services:
       - "6379:6379"
 
   p2p:
-    container_name: p2p
-    image: ghcr.io/pharmbio/p2p:latest
+    container_name: ptp
+    image: ghcr.io/pharmbio/ptp:latest
     build:
-      context: ./p2p/
+      context: ./ptp/
       dockerfile: Dockerfile
     command: sh -c /app/run.sh
     #command: >
@@ -33,7 +33,7 @@ services:
 
     #gunicorn p2p.wsgi:application --bind 0.0.0.0:8000"
     volumes:
-      - ./p2p/:/app  # Mount the current directory to the container for live development
+      - ./ptp/:/app  # Mount the current directory to the container for live development
     ports:
       - "8000:8000"
     depends_on:
@@ -54,10 +54,10 @@ services:
   p2p-worker:
     container_name: worker
     build:
-      context: ./p2p/
-    command: celery -A p2p.celery worker --loglevel=info  --concurrency=8
+      context: ./ptp/
+    command: celery -A ptp.celery worker --loglevel=info  --concurrency=8
     volumes:
-      - ./p2p/:/app
+      - ./ptp/:/app
       #- ./tmp:/tmp
     depends_on:
       - redis
@@ -71,10 +71,10 @@ services:
   p2p-beat:
     container_name: beat
     build:
-      context: ./p2p/
+      context: ./ptp/
     command: celery -A p2p.celery beat --loglevel=info
     volumes:
-      - ./p2p/:/app
+      - ./ptp/:/app
     depends_on:
       - redis
       - postgres

@@ -20,7 +20,7 @@ fi
 if [ -z "${DEBUG}" ]; then
   echo "running in PRODUCTION mode with 4 workers!"
   #gunicorn centauraai.wsgi --timeout 30 --graceful-timeout 30 -b 0.0.0.0:8000 -w 4 &
-  uvicorn p2p.asgi:application --host 0.0.0.0 --port 8000 --workers 4 &
+  uvicorn ptp.asgi:application --host 0.0.0.0 --port 8000 --workers 4 &
 else
   #uvicorn centauraai.asgi:application --host 0.0.0.0 --port 8000 --workers 1 --reload &
 
