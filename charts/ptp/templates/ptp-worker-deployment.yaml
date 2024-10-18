@@ -22,18 +22,12 @@ spec:
       labels:
         io.kompose.service: ptp-worker
     spec:
+      {{- if .Values.ptp.downloadModels }}
       initContainers:
-      - name: init-git-cloner
-        image: alpine/git:latest
-        volumeMounts:
-          - name: ptp-worker-claim0
-            mountPath: /models
-        command: [ "/bin/sh", "-c" ]
-        args:
-          - |
-            git clone https://huggingface.co/pharmbio/ptp /models && \
-            cd /models && \
-            git lfs pull
+      - name: wait-for-init-job
+        image: bitnami/kubectl:latest
+        command: ['sh', '-c', 'until [ "$(kubectl get jobs ptp-download-models -o jsonpath="{.status.succeeded}")" = "1" ]; do echo waiting for job to complete; sleep 2; done' ]
+      {{- end }}
       containers:
         - args:
             - celery
@@ -55,9 +49,16 @@ spec:
           name: worker
           volumeMounts:
             - mountPath: /app/inference/models/
+              subPath: models/
               name: ptp-worker-claim0
+            - name: settings-volume
+              mountPath: /app/ptp/settings.py
+              subPath: settings.py
       restartPolicy: Always
       volumes:
         - name: ptp-worker-claim0
           persistentVolumeClaim:
             claimName: ptp-worker-claim0
+        - name: settings-volume
+          configMap:
+            name: settings-config-{{ .Release.Name }}

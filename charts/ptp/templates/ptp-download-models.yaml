@@ -1,0 +1,27 @@
+{{- if .Values.ptp.downloadModels }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ptp-download-models
+spec:
+  template:
+    spec:
+      containers:
+      - name: ptp-download-models
+        image: alpine/git:latest
+        command: [ "/bin/sh", "-c" ]
+        args:
+          - |
+            git clone https://huggingface.co/pharmbio/ptp /models && \
+            cd /models && \
+            git lfs pull
+        volumeMounts:
+          - name: ptp-worker-claim0
+            mountPath: /models
+      restartPolicy: OnFailure
+      volumes:
+        - name: ptp-worker-claim0
+          persistentVolumeClaim:
+            claimName: ptp-worker-claim0
+
+{{- end }}

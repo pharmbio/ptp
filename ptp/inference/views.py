@@ -5,6 +5,11 @@ from .tasks import run_inference
 from django.http import JsonResponse
 
 def submit_job(request):
+
+    #from django.conf import settings
+    #if settings.EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend':
+    #    enable_email = True
+
     if request.method == 'POST':
         form = InferenceJobForm(request.POST, request.FILES)
         if form.is_valid():

@@ -5,6 +5,7 @@ secret_key: BB
 
 debug: true
 ptp:
+  downloadModels: false
   replicaCount: 1
 
   image:
