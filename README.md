@@ -3,6 +3,9 @@
 ## Overview
 This project is designed to process and analyze molecular data using various tools and frameworks. It includes components for data storage, processing, and web-based interaction.
 
+
+<img width="867" alt="Screenshot 2024-10-18 at 14 56 57" src="https://github.com/user-attachments/assets/a7518347-6969-445b-8cec-78824c536373">
+
 ## Usage
 To use this project, follow these steps:
 
