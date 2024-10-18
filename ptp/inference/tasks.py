@@ -9,6 +9,7 @@ from datetime import timezone
 
 @shared_task
 def run_inference(job_id):
+
     job = InferenceJob.objects.get(id=job_id)
     job.status = 'running'
     job.save()
@@ -37,14 +38,21 @@ def run_inference(job_id):
     else:
         chembl_version = 'chembl_34'
     base = '/app/inference/models/'
-    model_files = [os.path.join(base,chembl_version,path, f) for f in os.listdir(os.path.join(base, chembl_version,path)) if f.endswith('.jar')]
+    try:
+        model_files = [os.path.join(base,chembl_version,path, f) for f in os.listdir(os.path.join(base, chembl_version,path)) if f.endswith('.jar')]
+    except Exception as e:
+        job.status = 'failed'
+        job.save()
+        cleanup_output_files(output_dir)
+        print("Failed to load models:", e, flush=True)
+        return
     results = []
     result_filenames = []
     print("Running inference...", flush=True)
     DEBUG=True
 
     if DEBUG:
-        print("RUNNING IN DEBUG MODE OINLY CALCULATING 3 MODELS", flush=True)
+        print("RUNNING IN DEBUG MODE ONLY CALCULATING 3 MODELS", flush=True)
         model_files = model_files#[:5]
 
     try:
@@ -66,9 +74,7 @@ def run_inference(job_id):
             print("Reading result file...", flush=True)
             df = pd.read_csv(output_file)
             print("Finished reading result file", flush=True)
-            import time
-            print("Sleeping for 0.1 seconds...", flush=True)
-            time.sleep(0.1)
+
             #d = {'col1': [1, 2], 'col2': [3, 4]}
             #df = pd.DataFrame(data=d)
             result_filenames.append(output_file)
@@ -190,7 +196,7 @@ def run_inference(job_id):
         send_mail(
             'Your inference job is complete',
             f'Your job is complete. Download the result here: {settings.SITE_URL}/media/{result.result_file.name}',
-            'noreply@yourdomain.com',
+            'noreply@pharmb.io',
             [job.email]
         )
 

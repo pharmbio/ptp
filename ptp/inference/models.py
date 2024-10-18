@@ -1,8 +1,12 @@
+from email.policy import default
+
 from django.db import models
 #from django.contrib.auth.models import User
+import uuid
 
 class InferenceJob(models.Model):
     #user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
     email = models.EmailField(null=True, blank=True)
     smiles_file = models.FileField(upload_to='uploads/')
     chembl_version = models.CharField(max_length=10)
