@@ -1,7 +1,10 @@
 # PTP Project
 
 ## Overview
-This project is designed to process and analyze molecular data using various tools and frameworks. It includes components for data storage, processing, and web-based interaction.
+> This project is designed to process and analyze molecular data using Ligand based models run with CPSign. It includes components for data storage, processing, and web-based interaction.
+
+
+<img width="867" alt="Screenshot 2024-10-18 at 14 56 57" src="https://github.com/user-attachments/assets/a7518347-6969-445b-8cec-78824c536373">
 
 ## Running the project
 Navigate to the specified serving url.
@@ -11,6 +14,7 @@ Se the example in test/smiles_example.csv for valid input file format.
 ## Local Installation
 There are two options. Docker-compose is fast to get started. The alternative and production-like alternative is skaffold. See skaffold.dev for more information on how to run.
 ### Usage
+
 To use this project, follow these steps:
 
 1. **Clone the repository**:
