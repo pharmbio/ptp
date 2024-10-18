@@ -114,10 +114,10 @@ data:
     # Email settings (for sending job completion notifications)
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = '{{ .Values.email.host }}'
-    EMAIL_PORT = {{ .Values.email.port }}
-    EMAIL_USE_TLS = {{ .Values.email.tls }}
-    EMAIL_HOST_USER = {{ .Values.email.user }}
-    EMAIL_HOST_PASSWORD = {{ .Values.email.password }}
+    EMAIL_PORT = '{{ .Values.email.port }}'
+    EMAIL_USE_TLS = '{{ .Values.email.tls }}'
+    EMAIL_HOST_USER = '{{ .Values.email.user }}'
+    EMAIL_HOST_PASSWORD = '{{ .Values.email.password }}'
     {{- else}}
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Use console backend for testing
 
