@@ -3,9 +3,9 @@ access_key: AA
 secret_key: BB
 
 
-debug: true
+debug: false
 ptp:
-  downloadModels: false
+  downloadModels: true
   replicaCount: 1
 
   image:
