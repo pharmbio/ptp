@@ -1,0 +1,18 @@
+
+log_level: DEBUG
+
+ptp:
+  replicaCount: 1
+
+  image:
+    repository: ghcr.io/pharmbio/ptp
+    tag: develop
+    pullPolicy: Always
+
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+  hosts:
+    - host: ptp.192.168.65.9.nip.io

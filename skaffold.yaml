@@ -1,0 +1,50 @@
+apiVersion: skaffold/v2beta27
+kind: Config
+build:
+  tagPolicy:
+    sha256: {}
+  artifacts:
+  - image: ptp
+    docker:
+      dockerfile: Dockerfile
+      noCache: true
+    context: ./ptp/
+    sync:
+      infer:
+        - '**/**/*.py'
+        - '**/**/*.html'
+        - '**/**/*.css'
+        - '**/**/*.js'
+        - '**/**/*.json'
+        - '**/**/*.yaml'
+        - '**/**/*.txt'
+        - '**/**/*.sh'
+        - '**/**/*.conf'
+        - '**/**/*.env'
+  #- image: ptp
+  #  docker:
+  #    dockerfile: Dockerfile
+  #    noCache: true
+  #  context: ./ptp/
+
+  local:
+    push: true
+  insecureRegistries: ["localhost:32000","192.168.65.9:32000"]
+deploy:
+  helm:
+    releases:
+    - name: ptp
+      chartPath: charts/ptp
+      #namespace: dev
+      #wait: true
+      valuesFiles:
+        - helm-skaffold-k8s.yaml
+
+      overrides:
+        ptp.image.repository: "{{.IMAGE_REPO_ptp}}"
+        ptp.image.tag: "{{.IMAGE_TAG_ptp}}@{{.IMAGE_DIGEST_ptp}}"
+
+      setValueTemplates:
+        ptp.image.repository: "{{.IMAGE_REPO_ptp}}"
+        ptp.image.tag: "{{.IMAGE_TAG_ptp}}@{{.IMAGE_DIGEST_ptp}}"
+
