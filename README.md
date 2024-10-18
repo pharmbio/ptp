@@ -20,14 +20,11 @@ To use this project, follow these steps:
 ## Deployment
 
 ### Kubernetes Deployment
-1. **Create a Kubernetes secret for your Scaleway S3 credentials**:
-    ```sh
-    kubectl apply -f scaleway-secret.yaml
-    ```
+1. Modify values.yaml according to your specification.
 
 2. **Deploy using Helm**:
     ```sh
-    helm install --upgrade charts/ptp --generate-name
+    helm install --upgrade charts/ptp --values values.yaml
     ```
 
 ### Docker Deployment
