@@ -8,18 +8,13 @@ To use this project, follow these steps:
 
 1. **Clone the repository**:
     ```sh
-    git clone https://huggingface.co/pharmbio/ptp
+    git clone https://github.com/pharmbio/ptp.git
     cd ptp
     ```
 
-2. **Install dependencies**:
+2. **Run the application**:
     ```sh
-    pip install -r requirements.txt
-    ```
-
-3. **Run the application**:
-    ```sh
-    docker-compose up
+    docker-compose up --build
     ```
 
 ## Deployment
