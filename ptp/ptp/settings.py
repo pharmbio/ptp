@@ -5,7 +5,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'p2p_for_president_CC44aAFG'
+SECRET_KEY = 'ptp_for_president_CC44aAFG'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -20,7 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'p2p',
+    'ptp',
     'inference',
     'django_celery_results',
     'django_celery_beat',
@@ -36,7 +36,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'p2p.urls'
+ROOT_URLCONF = 'ptp.urls'
 
 TEMPLATES = [
     {
@@ -54,7 +54,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'p2p.wsgi.application'
+WSGI_APPLICATION = 'ptp.wsgi.application'
 
 # Database
 DATABASES = {

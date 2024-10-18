@@ -1,8 +1,8 @@
 import os
 from celery import Celery
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "p2p.settings")
-app = Celery("p2p_worker")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ptp.settings")
+app = Celery("ptp_worker")
 app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
