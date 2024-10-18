@@ -3,7 +3,14 @@
 ## Overview
 This project is designed to process and analyze molecular data using various tools and frameworks. It includes components for data storage, processing, and web-based interaction.
 
-## Usage
+## Running the project
+Navigate to the specified serving url.
+Upload a csv smiles file.
+Se the example in test/smiles_example.csv for valid input file format.
+
+## Local Installation
+There are two options. Docker-compose is fast to get started. The alternative and production-like alternative is skaffold. See skaffold.dev for more information on how to run.
+### Usage
 To use this project, follow these steps:
 
 1. **Clone the repository**:
