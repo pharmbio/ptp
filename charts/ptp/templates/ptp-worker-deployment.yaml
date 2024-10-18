@@ -48,6 +48,8 @@ spec:
           image: {{ .Values.ptp.image.repository }}:{{ .Values.ptp.image.tag }}
           name: worker
           volumeMounts:
+            - mountPath: /app/media/
+              name: ptp-media-dir
             - mountPath: /app/inference/models/
               subPath: models/
               name: ptp-worker-claim0
@@ -56,6 +58,9 @@ spec:
               subPath: settings.py
       restartPolicy: Always
       volumes:
+        - name: ptp-media-dir
+          persistentVolumeClaim:
+            claimName: ptp-media-dir
         - name: ptp-worker-claim0
           persistentVolumeClaim:
             claimName: ptp-worker-claim0

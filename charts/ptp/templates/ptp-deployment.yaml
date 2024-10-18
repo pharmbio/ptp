@@ -59,9 +59,8 @@ spec:
             - containerPort: 8000
               protocol: TCP
           volumeMounts:
-            - mountPath: /app/inference/models/
-              subPath: models/
-              name: ptp-worker-claim0
+            - mountPath: /app/media/
+              name: ptp-media-dir
             - name: settings-volume
               mountPath: /app/ptp/settings.py
               subPath: settings.py
@@ -69,9 +68,9 @@ spec:
         - name: regcred
       restartPolicy: Always
       volumes:
-        - name: ptp-worker-claim0
+        - name: ptp-media-dir
           persistentVolumeClaim:
-            claimName: ptp-worker-claim0
+            claimName: ptp-media-dir
         - name: settings-volume
           configMap:
             name: settings-config-{{ .Release.Name }}
