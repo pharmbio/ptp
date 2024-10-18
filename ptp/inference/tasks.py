@@ -23,7 +23,7 @@ def run_inference(job_id):
     # Select models based on the ChEMBL version
 
     if str(job.type == 'vennABERS'):
-        path = 'vennabers_models'
+        path = 'vennABERS_models'
     else:
         path = 'conformal_models'
 
