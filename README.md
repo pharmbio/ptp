@@ -46,12 +46,33 @@ To use this project, follow these steps:
     docker-compose up --build
     ```
 
+### Scilifelab Deployment
+
+1. Build container
+    ```sh
+    docker build -t ptp .
+    ```
+2. Push container to registry
+
+
+3. Deploy
+
+4. Configuration
+    - Set environment variables
+    Use `DOWNLOAD=true` to download models prior to startup.
+ - preferebly mount `/app/inference/models` directory to outside storage to avoid ram bloat.
+
+ - Use `MAX_MODELS` to limit the number of active models (for debug purposes) .otherwise it iterates all models present (currently 800+).
+
+- If desired use `MODEL_DIR` to change path where model are found (default /app/inference/models/models)
+
 
 ## References
 Model repository on Hugging Face: [pharmbio/ptp](https://huggingface.co/pharmbio/ptp)
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
 
 ## Authors
 - **Jonathan Alvarsson** - *Research, scipipe version and models* - [jonathanalvarsson](https://github.com/jonalv) 
