@@ -1,12 +1,14 @@
 FROM python:3.11 AS djangobase
 
-# Set working directory
+ENV USER=ptp
 
 RUN mkdir /app
+
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y gcc python3-dev libpq-dev
+RUN apt-get update && apt-get install -y gcc git-lfs python3-dev redis-server supervisor \
+    && apt-get clean
 
 # Install Java (OpenJDK)
 RUN apt-get update && apt-get install -y openjdk-17-jre-headless \
@@ -20,6 +22,8 @@ ENV PATH=$JAVA_HOME/bin:$PATH
 COPY requirements.txt /app/
 RUN pip install -r requirements.txt
 
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Copy the application code
 FROM djangobase AS djangoapp
 
@@ -32,5 +36,21 @@ WORKDIR /app
 # Expose the port the Django app runs on
 EXPOSE 8000
 
-# Default command
-CMD ["gunicorn", "p2p.wsgi:application", "--bind", "0.0.0.0:8000"]
+RUN useradd -u 1000 $USER
+
+RUN chown -R $USER:$USER /etc/supervisor/conf.d/supervisord.conf
+RUN chown -R $USER:$USER /app/
+RUN chown -R $USER:$USER /var/log/supervisor/
+RUN chmod +x /app/start-single.sh
+RUN chmod +x /app/start-django.sh
+RUN chmod +x /app/download.sh
+
+# Make sure the container is running as non-root
+USER $USER
+
+ENV CELERY_BROKER_URL="redis://localhost:6379/0"
+ENV REDIS_URL="redis://localhost:6379/0"
+ENV DOWNLOAD=false
+
+# Start supervisord
+CMD ["sh", "-c", "/app/start-single.sh"]

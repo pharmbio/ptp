@@ -7,6 +7,9 @@ from django.conf import settings
 import pandas as pd
 from datetime import timezone
 
+model_dir = os.environ.get("MODEL_DIR", "/app/inference/models/models/")
+max_models = os.environ.get("MAX_MODELS", False)
+
 @shared_task
 def run_inference(job_id):
 
@@ -37,7 +40,7 @@ def run_inference(job_id):
         chembl_version = 'chembl_34'
     else:
         chembl_version = 'chembl_34'
-    base = '/app/inference/models/'
+    base = model_dir
     try:
         model_files = [os.path.join(base,chembl_version,path, f) for f in os.listdir(os.path.join(base, chembl_version,path)) if f.endswith('.jar')]
     except Exception as e:
@@ -54,6 +57,8 @@ def run_inference(job_id):
     if DEBUG:
         print("RUNNING IN DEBUG MODE ONLY CALCULATING 3 MODELS", flush=True)
         model_files = model_files#[:5]
+    if max_models:
+        model_files = model_files[:int(max_models)]
 
     try:
         for model in model_files:
