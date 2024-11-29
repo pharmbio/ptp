@@ -69,7 +69,7 @@ jobs:
       with:
         # list of Docker images to use as base name for tags
         images: |
-          ghcr.io/pharmbio/ptp
+          ghcr.io/akochari/ptp
         # generate Docker tags based on the following events/attributes
         tags: |
           type=schedule
