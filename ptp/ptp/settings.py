@@ -8,9 +8,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'ptp_for_president_CC44aAFG'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*', 'localhost', 'ptp-inference.serve.scilifelab.se']
+ALLOWED_HOSTS = ['*', 'localhost']
 
 # Application definition
 INSTALLED_APPS = [
