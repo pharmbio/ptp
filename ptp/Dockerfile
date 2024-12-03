@@ -31,8 +31,6 @@ COPY . /app/
 
 WORKDIR /app
 
-
-
 # Expose the port the Django app runs on
 EXPOSE 8000
 
@@ -43,14 +41,14 @@ RUN chown -R $USER:$USER /app/
 RUN chown -R $USER:$USER /var/log/supervisor/
 RUN chmod +x /app/start-script.sh
 RUN chmod +x /app/start-django.sh
-RUN chmod +x /app/download.sh
 
 # Make sure the container is running as non-root
 USER $USER
 
 ENV CELERY_BROKER_URL="redis://localhost:6379/0"
 ENV REDIS_URL="redis://localhost:6379/0"
-ENV DOWNLOAD=false
+ENV MODEL_DIR = "/app/inference/models/models"
+# Models will be downloaded and placed in /app/inference/models/models through SciLifeLab Serve interface
 
 # Start supervisord
 CMD ["sh", "-c", "/app/start-script.sh"]
