@@ -30,6 +30,7 @@ FROM djangobase AS djangoapp
 COPY . /app/
 
 WORKDIR /app
+RUN mkdir /app/inference/models/
 
 # Expose the port the Django app runs on
 EXPOSE 8000
