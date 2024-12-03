@@ -12,6 +12,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*', 'localhost']
 
+CSRF_TRUSTED_ORIGINS=['https://ptp-inference.serve.scilifelab.se']
+
+
+
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
