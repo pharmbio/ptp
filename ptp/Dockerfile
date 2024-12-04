@@ -48,7 +48,7 @@ USER $USER
 
 ENV CELERY_BROKER_URL="redis://localhost:6379/0"
 ENV REDIS_URL="redis://localhost:6379/0"
-ENV MODEL_DIR = "/app/inference/models/models"
+ENV MODEL_DIR="/app/inference/models/models"
 # Models will be downloaded and placed in /app/inference/models/models through SciLifeLab Serve interface
 
 # Start supervisord
