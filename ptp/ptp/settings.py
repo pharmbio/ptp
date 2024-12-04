@@ -8,7 +8,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'ptp_for_president_CC44aAFG'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
+#DEBUG = True
+if os.environ.get('DEBUG', False) == 'True':
+    DEBUG = True
+
 
 ALLOWED_HOSTS = ['*', 'localhost']
 
@@ -61,11 +65,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ptp.wsgi.application'
 
+DATABASE_DIR = os.environ.get('DATABASE_DIR', BASE_DIR)
 # Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': DATABASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -103,18 +108,28 @@ STATICFILES_DIRS = [
 
 # Media files (Uploaded files, results)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_DIR = os.environ.get('MEDIA_DIR', BASE_DIR)
+MEDIA_ROOT = os.path.join(MEDIA_DIR, 'media')
 
 # Email settings (for sending job completion notifications)
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Use console backend for testing
-else:
+if os.environ.get('EMAIL_HOST', False):
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.your-email-provider.com'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = 'your-email@example.com'
-    EMAIL_HOST_PASSWORD = 'your-email-password'
+    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.example.com')
+    EMAIL_PORT = os.environ.get('EMAIL_PORT',587)
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS',True)
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER','your-email@example.com')
+
+    # Not superfond of this..
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD','your-email-password')
+    # Perhaps?
+    if os.environ.get("EMAIL_PASSWORD_FILE", False):
+        filename = os.environ.get("EMAIL_PASSWORD_FILE", False)
+        with open(filename) as f:
+            EMAIL_HOST_PASSWORD = f.read().strip()
+
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Use console backend for testing
 
 # Celery configuration
 CELERY_BROKER_URL = "redis://localhost:6379/0"
@@ -133,7 +148,8 @@ CELERY_TIMEZONE = 'Europe/Stockholm'
 # In production, it's better to use a cloud storage solution like AWS S3
 
 # Set the SITE_URL for generating download links in emails
-SITE_URL = 'https://yourdomain.com'
+
+SITE_URL = os.environ.get('EMAIL_DOMAIN','https://yourdomain.com')
 
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True
