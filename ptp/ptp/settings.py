@@ -9,7 +9,7 @@ SECRET_KEY = 'ptp_for_president_CC44aAFG'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-#DEBUG = True
+DEBUG = False
 if os.environ.get('DEBUG', False) == 'True':
     DEBUG = True
 
