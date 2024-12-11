@@ -104,7 +104,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "staticsource",
     #'/var/www/static',
 ]
-
+SERVE_STATIC = True
 
 # Media files (Uploaded files, results)
 MEDIA_URL = '/media/'
