@@ -65,7 +65,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ptp.wsgi.application'
 
-DATABASE_DIR = os.environ.get('DATABASE_DIR', BASE_DIR)
+DATABASE_DIR = Path(os.environ.get('DATABASE_DIR', BASE_DIR))
 # Database
 DATABASES = {
     'default': {
