@@ -30,8 +30,7 @@ FROM djangobase AS djangoapp
 COPY . /app/
 
 WORKDIR /app
-RUN mkdir -p /app/ext_storage/{models,media,database}
-
+RUN mkdir -p /app/ext_storage/models /app/ext_storage/media /app/ext_storage/database
 # Expose the port the Django app runs on
 EXPOSE 8000
 
