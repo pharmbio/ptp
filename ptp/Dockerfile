@@ -30,7 +30,7 @@ FROM djangobase AS djangoapp
 COPY . /app/
 
 WORKDIR /app
-RUN mkdir /app/inference/models/
+RUN mkdir -p /app/ext_storage/{models,media,database}
 
 # Expose the port the Django app runs on
 EXPOSE 8000
@@ -48,8 +48,10 @@ USER $USER
 
 ENV CELERY_BROKER_URL="redis://localhost:6379/0"
 ENV REDIS_URL="redis://localhost:6379/0"
-ENV MODEL_DIR="/app/inference/models/models"
+ENV MODEL_DIR="/app/ext_storage/models"
 # Models will be downloaded and placed in /app/inference/models/models through SciLifeLab Serve interface
+ENV DATABASE_DIR="/app/ext_storage/database"
+ENV MEDIA_DIR="/app/ext_storage/media"
 
 # Start supervisord
 CMD ["sh", "-c", "/app/start-script.sh"]
