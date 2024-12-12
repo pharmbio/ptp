@@ -18,8 +18,9 @@ else:
 
 ALLOWED_HOSTS = ['*', 'localhost']
 
-CSRF_TRUSTED_ORIGINS=['https://ptp-inference.serve.scilifelab.se']
-
+CSRF_TRUSTED_ORIGINS=['http://localhost:8000']
+if os.environ.get('CSRF_TRUSTED_ORIGINS', False):
+    CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split(',')
 
 
 
@@ -44,7 +45,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'ptp.urls'
@@ -153,9 +154,12 @@ CELERY_TIMEZONE = 'Europe/Stockholm'
 
 SITE_URL = os.environ.get('EMAIL_DOMAIN','https://yourdomain.com')
 
-# Security settings
-SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = 'DENY'
-SECURE_SSL_REDIRECT = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
+STAGE_ENV = os.environ.get('STAGE', False)
+
+if not STAGE_ENV:
+    # Security settings
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
+    SECURE_SSL_REDIRECT = not DEBUG
+    CSRF_COOKIE_SECURE = not DEBUG
+    SESSION_COOKIE_SECURE = not DEBUG
