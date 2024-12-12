@@ -5,7 +5,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'ptp_for_president_CC44aAFG'
+import random
+SECRET_KEY = os.environ.get('SECRET_KEY', ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for i in range(50)]))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
