@@ -6,8 +6,10 @@ from django.core.mail import send_mail
 from django.conf import settings
 import pandas as pd
 from datetime import timezone
+from pathlib import Path
 
-model_dir = os.environ.get("MODEL_DIR", "/app/inference/models/models/")
+model_dir = os.environ.get("MODEL_DIR", "/app/ext_storage/models")
+Path(model_dir).mkdir(parents=True, exist_ok=True)
 max_models = os.environ.get("MAX_MODELS", False)
 
 @shared_task
