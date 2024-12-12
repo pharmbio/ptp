@@ -10,19 +10,18 @@ SECRET_KEY = os.environ.get('SECRET_KEY', ''.join([random.SystemRandom().choice(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-#DEBUG = True
+DEBUG = False
 if os.environ.get('DEBUG', False) == 'True':
     DEBUG = True
-else:
-    DEBUG = False
 
 ALLOWED_HOSTS = ['*', 'localhost']
 
-CSRF_TRUSTED_ORIGINS=['http://localhost:8000']
+
+
+
+CSRF_TRUSTED_ORIGINS=['https://ptp2-inference.serve.scilifelab.se']
 if os.environ.get('CSRF_TRUSTED_ORIGINS', False):
     CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS').split(',')
-
-
 
 # Application definition
 INSTALLED_APPS = [
@@ -68,7 +67,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ptp.wsgi.application'
 
-DATABASE_DIR = os.environ.get('DATABASE_DIR', BASE_DIR)
+DATABASE_DIR = Path(os.environ.get('DATABASE_DIR', '/app/ext_storage/database'))
+DATABASE_DIR.mkdir(parents=True, exist_ok=True)
 # Database
 DATABASES = {
     'default': {
@@ -108,31 +108,26 @@ STATICFILES_DIRS = [
     #'/var/www/static',
 ]
 
-
 # Media files (Uploaded files, results)
 MEDIA_URL = '/media/'
 
-MEDIA_DIR = os.environ.get('MEDIA_DIR', BASE_DIR)
+MEDIA_DIR = os.environ.get('MEDIA_DIR', '/app/ext_storage/media')
 MEDIA_ROOT = os.path.join(MEDIA_DIR, 'media')
 
 # Email settings (for sending job completion notifications)
-if os.environ.get('EMAIL_HOST', False):
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.example.com')
-    EMAIL_PORT = os.environ.get('EMAIL_PORT',587)
-    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS',True)
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER','your-email@example.com')
-
-    # Not superfond of this..
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD','your-email-password')
-    # Perhaps?
-    if os.environ.get("EMAIL_PASSWORD_FILE", False):
-        filename = os.environ.get("EMAIL_PASSWORD_FILE", False)
-        with open(filename) as f:
-            EMAIL_HOST_PASSWORD = f.read().strip()
-
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Use console backend for testing
+EMAIL_BACKEND = (
+    "django.core.mail.backends.smtp.EmailBackend" if not DEBUG else "django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = os.environ.get('EMAIL_HOST', "smtp.gmail.com")
+EMAIL_PORT = os.environ.get('EMAIL_PORT', 465)
+EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', True)
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', False)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER','your-email@example.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD','your-email-password')
+if os.environ.get("EMAIL_PASSWORD_FILE", False):
+    filename = os.environ.get("EMAIL_PASSWORD_FILE", False)
+    with open(filename) as f:
+        EMAIL_HOST_PASSWORD = f.read().strip()
 
 # Celery configuration
 CELERY_BROKER_URL = "redis://localhost:6379/0"
@@ -152,7 +147,8 @@ CELERY_TIMEZONE = 'Europe/Stockholm'
 
 # Set the SITE_URL for generating download links in emails
 
-SITE_URL = os.environ.get('EMAIL_DOMAIN','https://yourdomain.com')
+SITE_URL = os.environ.get('SITE_URL','https://ptp2-inference.serve.scilifelab.se')
+
 
 STAGE_ENV = os.environ.get('STAGE', False)
 
@@ -160,6 +156,7 @@ if not STAGE_ENV:
     # Security settings
     SECURE_BROWSER_XSS_FILTER = True
     X_FRAME_OPTIONS = 'DENY'
-    SECURE_SSL_REDIRECT = not DEBUG
+    #SECURE_SSL_REDIRECT = not DEBUG
     CSRF_COOKIE_SECURE = not DEBUG
     SESSION_COOKIE_SECURE = not DEBUG
+

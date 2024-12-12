@@ -46,7 +46,7 @@ To use this project, follow these steps:
     docker-compose up --build
     ```
 
-### Scilifelab Deployment
+### Scilifelab Serve Deployment
 
 1. Build container
     ```sh
@@ -54,17 +54,19 @@ To use this project, follow these steps:
     ```
 2. Push container to registry
 
-
 3. Deploy
+    - By default the folder /app/ext_storage/ should be mounted to outside storage to avoid ram bloat. It will contain database, media, and models.
+    - Place the downloaded models (from https://huggingface.co/pharmbio/ptp) to /app/ext_storage/models/
 
 4. Configuration
-    - Set environment variables
-    Use `DOWNLOAD=true` to download models prior to startup.
- - preferebly mount `/app/inference/models` directory to outside storage to avoid ram bloat.
-
- - Use `MAX_MODELS` to limit the number of active models (for debug purposes) .otherwise it iterates all models present (currently 800+).
-
-- If desired use `MODEL_DIR` to change path where model are found (default /app/inference/models/models)
+    - Currently static files are served by Django itself even with DEBUG=False
+    - All defaults of environmental variables make sense for SciLifeLab Serve. Here are some environmental variables that can be changed if needed:
+    - `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER` etc for email settings.
+    - `MAX_MODELS` to limit the number of active models (for debug purposes) .otherwise it iterates all models present (currently 800+).
+    - `MEDIA_DIR` for media directory
+    - `MODEL_DIR` for models directory
+    - `DATABASE_DIR` for database directory
+    - `SITE_URL` for generating download links in emails
 
 
 ## References
