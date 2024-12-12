@@ -101,7 +101,6 @@ STATICFILES_DIRS = [
     BASE_DIR / "staticsource",
     #'/var/www/static',
 ]
-SERVE_STATIC = True
 
 # Media files (Uploaded files, results)
 MEDIA_URL = '/media/'
@@ -142,7 +141,7 @@ CELERY_TIMEZONE = 'Europe/Stockholm'
 
 # Set the SITE_URL for generating download links in emails
 
-SITE_URL = os.environ.get('EMAIL_DOMAIN','https://ptp2-inference.serve.scilifelab.se')
+SITE_URL = os.environ.get('SITE_URL','https://ptp2-inference.serve.scilifelab.se')
 
 # Security settings
 SECURE_BROWSER_XSS_FILTER = True

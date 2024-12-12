@@ -30,6 +30,7 @@ FROM djangobase AS djangoapp
 COPY . /app/
 
 WORKDIR /app
+RUN mkdir -p /app/ext_storage/
 # Models also need to be added. They be downloaded and placed in /app/ext_storage/models/ through the SciLifeLab Serve interface
 
 # Expose the port the Django app runs on
