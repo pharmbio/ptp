@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  p2p:
+    container_name: ptp
+    image: ghcr.io/pharmbio/ptp:latest
+    build:
+      context: ./ptp/
+      dockerfile: Dockerfile
+    #command: sh -c /app/run.sh
+    #command: >
+    #  sh -c "python manage.py migrate &&
+    #         python manage.py collectstatic --noinput &&
+    #         python manage.py runserver 0.0.0.0:8000"
+
+    #gunicorn p2p.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - ./ptp/:/app  # Mount the current directory to the container for live development
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_DIR=/app/tmp/models
+      - MAX_MODELS=5
+      - STAGE=True
+      #- DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
+      #- REDIS_URL=redis://redis:6379/0
+      #- CELERY_BROKER_URL=redis://redis:6379/0
+      #- DEBUG=True
+      #- EMAIL_HOST=smtp.your-email-provider.com
+      #- EMAIL_PORT="587"
+      #- EMAIL_USE_TLS="True"
+      #- EMAIL_HOST_USER=your-email@example.com
+      #- EMAIL_HOST_PASSWORD=your-email-password
+      - SITE_URL=http://localhost:8000
+
+#volumes:
+#  postgres_data:
