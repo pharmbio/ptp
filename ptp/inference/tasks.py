@@ -111,7 +111,10 @@ def run_inference(job_id):
     """
 
     print("Concatenating results...", flush=True)
-    result_file_path = f"resultfilepath-{job_id}.csv"
+
+    BASE_DIR = os.environ.get("BASE_DIR", "/app/")
+    os.makedirs(f"{BASE_DIR}/interim", exist_ok=True)
+    result_file_path = f"{BASE_DIR}/interim/resultfilepath-{job_id}.csv"
 
     try:
         # Paths for input and output
