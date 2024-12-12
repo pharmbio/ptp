@@ -7,13 +7,15 @@ RUN mkdir /app
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y gcc git-lfs python3-dev redis-server supervisor \
+RUN apt-get update && apt-get install -y gcc git-lfs python3-dev redis-server supervisor nginx \
     && apt-get clean
 
 # Install Java (OpenJDK)
 RUN apt-get update && apt-get install -y openjdk-17-jre-headless \
     && apt-get clean
 
+RUN mkdir -p /var/lib/nginx/body
+RUN chown -R www-data:www-data /var/lib/nginx
 # Set JAVA_HOME environment variable (optional)
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
@@ -40,6 +42,8 @@ RUN useradd -u 1000 $USER
 RUN chown -R $USER:$USER /etc/supervisor/conf.d/supervisord.conf
 RUN chown -R $USER:$USER /app/
 RUN chown -R $USER:$USER /var/log/supervisor/
+RUN chown -R $USER:$USER /var/lib/nginx/
+RUN chown -R $USER:$USER /var/log/nginx/
 RUN chmod +x /app/start-script.sh
 RUN chmod +x /app/start-django.sh
 
