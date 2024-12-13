@@ -14,7 +14,7 @@ max_models = os.environ.get("MAX_MODELS", False)
 
 @shared_task
 def run_inference(job_id):
-
+    import os
     job = InferenceJob.objects.get(id=job_id)
     job.status = 'running'
     job.save()
@@ -32,11 +32,12 @@ def run_inference(job_id):
     else:
         path = 'conformal_models'
 
+    print("JOB CHEMBL VERSION:{}:VERSION".format(job.chembl_version), flush=True)
     if str(job.chembl_version) == '31':
         chembl_version = 'chembl_31'
-    if str(job.chembl_version) == '32':
+    elif str(job.chembl_version) == '32':
         chembl_version = 'chembl_32'
-    if str(job.chembl_version) == '33':
+    elif str(job.chembl_version) == '33':
         chembl_version = 'chembl_33'
     elif str(job.chembl_version) == '34':
         chembl_version = 'chembl_34'
@@ -54,11 +55,8 @@ def run_inference(job_id):
     results = []
     result_filenames = []
     print("Running inference...", flush=True)
-    DEBUG=True
+    import os
 
-    if DEBUG:
-        print("RUNNING IN DEBUG MODE ONLY CALCULATING 3 MODELS", flush=True)
-        model_files = model_files#[:5]
     if max_models:
         model_files = model_files[:int(max_models)]
 
@@ -115,6 +113,7 @@ def run_inference(job_id):
     print("Concatenating results...", flush=True)
 
     BASE_DIR = os.environ.get("BASE_DIR", "/app/")
+    import os
     os.makedirs(f"{BASE_DIR}/interim", exist_ok=True)
     result_file_path = f"{BASE_DIR}/interim/resultfilepath-{job_id}.csv"
 
@@ -157,7 +156,7 @@ def run_inference(job_id):
             df_result[target + '_p_i'] = df_result['SMILES'].map(p_i)
             df_result[target + '_p_a'] = df_result['SMILES'].map(p_a)
 
-        df_result.drop(axis='index', labels=0, inplace=True)
+        ##### df_result.drop(axis='index', labels=0, inplace=True)
         #print("Finished processing file:", p, flush=True)
         df_result.to_csv(result_file_path, index=False)
         #print("saving to resultfile path", flush=True)
@@ -184,11 +183,18 @@ def run_inference(job_id):
     # Save result in Django model
     #job.result_file.name = f"results/{job_id}_final_result.csv"
     import uuid
-    identifier = str(uuid.uuid4())
+    identifier = str(uuid.uuid4()).split('-')[0]
     if result_file_path:
         with open(result_file_path, 'rb') as f:
-            result = Result.objects.create(job=job)
-            result.result_file.save(f"{job_id}_{identifier}_result.csv", f)
+            try:
+                result = Result.objects.create(job=job)
+                result.result_file.save(f"{job_id}_{identifier}_result.csv", f)
+                result.save()
+            except Exception as e:
+                job.status = 'failed'
+                job.save()
+                cleanup_output_files(output_dir)
+                print("Failed to save result from interim:", e, flush=True)
 
     #job.result_file.name = f"results/{job_id}_final_result.csv"
 

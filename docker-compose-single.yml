@@ -32,6 +32,7 @@ services:
       #- EMAIL_HOST_USER=your-email@example.com
       #- EMAIL_HOST_PASSWORD=your-email-password
       - SITE_URL=http://localhost:8000
+      - CSRF_TRUSTED_ORIGINS=http://localhost:8000
 
 #volumes:
 #  postgres_data:

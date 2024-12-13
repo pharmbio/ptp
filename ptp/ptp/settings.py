@@ -111,7 +111,7 @@ STATICFILES_DIRS = [
 # Media files (Uploaded files, results)
 MEDIA_URL = '/media/'
 
-MEDIA_DIR = os.environ.get('MEDIA_DIR', '/app/ext_storage/media')
+MEDIA_DIR = os.environ.get('MEDIA_DIR', '/app/ext_storage/')
 MEDIA_ROOT = os.path.join(MEDIA_DIR, 'media')
 
 # Email settings (for sending job completion notifications)
